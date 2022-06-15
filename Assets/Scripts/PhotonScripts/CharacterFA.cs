@@ -7,7 +7,7 @@ using System;
 
 public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
 {
-    Player _owner;
+    public Player owner;
 
     [SerializeField] float _maxLife;
     float _currentLife;
@@ -50,21 +50,30 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
 
     void Start()
     {
+        PlayersVar.instance.AddPlayerGameObject(owner, gameObject);
+        PlayersVar.instance.AddPlayerToLaps(owner);
         //CanvasLifeBar lifeBarManager = FindObjectOfType<CanvasLifeBar>();
         //lifeBarManager?.SpawnBar(this);
         Debug.Log("START");
     }
 
+    private void Update()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        Gravity();
+    }
+
 
     public CharacterFA SetInitialParameters(Player player)
     {
-        _owner = player;
+        owner = player;
 
         _currentLife = _maxLife;
 
         //GetComponent<Renderer>().material.color = Color.yellow;
 
-        photonView.RPC("SetLocalParms", _owner, _currentLife);
+        photonView.RPC("SetLocalParms", owner, _currentLife);
 
         Debug.Log("INITIAL PARAMETERS");
 
@@ -79,8 +88,8 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
 
         if (_currentLife <= 0)
         {
-            photonView.RPC("DisconnectOwner", _owner);
-            MyServer.Instance.RPC_PlayerDisconnect(_owner);
+            photonView.RPC("DisconnectOwner", owner);
+            MyServer.Instance.RPC_PlayerDisconnect(owner);
         }
     }
 
@@ -94,9 +103,9 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
     [PunRPC]
     void SetLocalParms(float life)
     {
-        _owner = PhotonNetwork.LocalPlayer;
+        owner = PhotonNetwork.LocalPlayer;
 
-        GetComponent<Renderer>().material.color = Color.blue;
+        //GetComponent<Renderer>().material.color = Color.blue;
 
         Debug.Log("LOCAL PARAMETERS");
     }
@@ -200,9 +209,9 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
 
     private void OnApplicationQuit()
     {
-        if (_owner == PhotonNetwork.LocalPlayer)
+        if (owner == PhotonNetwork.LocalPlayer)
         {
-            MyServer.Instance.RequestDisconnection(_owner);
+            MyServer.Instance.RequestDisconnection(owner);
         }
         PhotonNetwork.Disconnect();
     }

@@ -396,6 +396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverPrefab: {fileID: 1720118973135104195, guid: 0653e106913709b4b8385a2a96f7b0eb, type: 3}
   controllerPrefab: {fileID: 2799831924015408816, guid: e505d937979f0b1499ed2b1b88ae9c7d, type: 3}
+  playerVarPrefab: {fileID: 2167106462542432746, guid: e6bd4f71c75225a478136dbcc0555602, type: 3}
 --- !u!4 &406272792
 Transform:
   m_ObjectHideFlags: 0

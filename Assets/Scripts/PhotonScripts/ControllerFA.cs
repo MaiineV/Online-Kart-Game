@@ -6,7 +6,7 @@ using Photon.Realtime;
 
 public class ControllerFA : MonoBehaviourPun
 {
-    Player _localPlayer;
+    public Player localPlayer;
 
     float _h;
     float _v;
@@ -15,7 +15,7 @@ public class ControllerFA : MonoBehaviourPun
     {
         DontDestroyOnLoad(gameObject);
 
-        _localPlayer = PhotonNetwork.LocalPlayer;
+        localPlayer = PhotonNetwork.LocalPlayer;
     }
 
 
@@ -24,24 +24,19 @@ public class ControllerFA : MonoBehaviourPun
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            MyServer.Instance.RequestJump(_localPlayer);
-        }
-    }
-
-    private void FixedUpdate()
-    {
         if (_h != 0 || _v != 0)
         {
-            MyServer.Instance.RequestMove(_localPlayer, _h, _v);
+            MyServer.Instance.RequestMove(localPlayer, _h, _v);
         }
 
-        //MyServer.Instance.RequestGravity(_localPlayer);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            MyServer.Instance.RequestJump(localPlayer);
+        }
     }
 
     public Player GetPlayer()
     {
-        return _localPlayer;
+        return localPlayer;
     }
 }

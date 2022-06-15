@@ -88,11 +88,6 @@ public class MyServer : MonoBehaviourPun
         photonView.RPC("RPC_Move", _server, player, h, v);
     }
 
-    public void RequestGravity(Player player)
-    {
-        photonView.RPC("RPC_Gravity", _server, player);
-    }
-
     public void RequestShoot(Player player)
     {
         photonView.RPC("RPC_Shoot", _server, player);
@@ -121,15 +116,6 @@ public class MyServer : MonoBehaviourPun
         if (_dictModels.ContainsKey(playerRequested))
         {
             _dictModels[playerRequested].Move(horizontal, vertical);
-        }
-    }
-
-    [PunRPC]
-    private void RPC_Gravity(Player playerRequested)
-    {
-        if (_dictModels.ContainsKey(playerRequested))
-        {
-            _dictModels[playerRequested].Gravity();
         }
     }
 

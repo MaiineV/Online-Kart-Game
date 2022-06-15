@@ -8,6 +8,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 {
     public MyServer serverPrefab;
     public ControllerFA controllerPrefab;
+    public PlayersVar playerVarPrefab;
 
     public void BTN_Connect()
     {
@@ -25,6 +26,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnCreatedRoom()
     {
         PhotonNetwork.Instantiate(serverPrefab.name, Vector3.zero, Quaternion.identity);
+        PhotonNetwork.Instantiate(playerVarPrefab.name, Vector3.zero, Quaternion.identity);
     }
 
     public override void OnJoinedRoom()
