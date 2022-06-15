@@ -35,6 +35,8 @@ public class KartController : MonoBehaviour
 
     public bool canMove;
 
+    public Transform rotationPoint;
+
 
     void Start()
     {
@@ -76,6 +78,9 @@ public class KartController : MonoBehaviour
         else
         {
             speed += (0 - speed) * deaceleration * Time.deltaTime;
+
+            if (0 - speed < 0.1f)
+                speed = 0;
         }
 
         speed = Mathf.Clamp(speed, -maxSpeed, maxSpeed);
@@ -94,34 +99,10 @@ public class KartController : MonoBehaviour
             rotationAngle = 0;
         }
 
-        transform.Rotate(new Vector3(0, rotationAngle, 0));
-        transform.position += transform.forward * speed * Time.deltaTime;
+        rotationPoint.Rotate(new Vector3(0, rotationAngle, 0));
+        transform.position += rotationPoint.forward * speed * Time.deltaTime;
 
-        Debug.DrawRay(transform.position, Vector3.down, Color.red, 1f);
-
-        if (isOnAir && Physics.Raycast(transform.position, Vector3.down, 1, floor))
-        {
-            isOnAir = false;
-            verticalForce = 0;
-        }
-        else if (!isOnAir && !Physics.Raycast(transform.position, Vector3.down, 1, floor))
-        {
-            isOnAir = true;
-        }
-
-        if (isOnAir)
-        {
-            verticalForce += gravity * Time.deltaTime;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space) && !isOnAir)
-            verticalForce += forceJump;
-
-
-        transform.position += Vector3.up * verticalForce * Time.deltaTime;
-
-
-
+        GravityForce();
 
         Collider[] forceColliders = Physics.OverlapSphere(transform.position, 4);
         Collider[] crashCollider = Physics.OverlapBox(collisionPoint.position, boxSize);
@@ -145,15 +126,49 @@ public class KartController : MonoBehaviour
                 if (collider.gameObject.tag == "Player" && collider.gameObject != this.gameObject)
                 {
                     Vector3 forceDir = (collider.transform.position - transform.position).normalized;
-                    collider.gameObject.GetComponent<KartController>().AddCrashForce(forceDir, maxCrashForce);
+                    collider.gameObject.GetComponent<KartController>().AddCrashForce(forceDir, maxCrashForce * (speed / maxSpeed));
                 }
             }
         }
     }
 
+    void GravityForce()
+    {
+        Debug.DrawRay(transform.position, Vector3.down, Color.red, 1f);
+        RaycastHit hit;
+        if (isOnAir && Physics.Raycast(transform.position, Vector3.down, 1.5f, floor))
+        {
+            isOnAir = false;
+            verticalForce = 0;
+
+        }
+        else if (!isOnAir && !Physics.Raycast(transform.position, Vector3.down, 1.5f, floor))
+        {
+            isOnAir = true;
+        }
+
+        if (isOnAir)
+        {
+            verticalForce += gravity * Time.deltaTime;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && !isOnAir)
+        {
+            verticalForce += forceJump;
+        }
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.5f, floor))
+        {
+            transform.rotation = Quaternion.Euler(new Vector3(hit.collider.transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, hit.collider.transform.rotation.eulerAngles.z));
+        }
+
+        transform.position += Vector3.up * verticalForce * Time.deltaTime;
+
+    }
+
     void CrashForce()
     {
-        if (crashForce == 0) return;
+        if (crashForce == 0) { isMoveByForce = false; return; }
 
         Vector3 dirX = new Vector3(dirCrashForce.x, 0, 0);
         CheckCrashCollions(dirX, 0);
@@ -195,11 +210,12 @@ public class KartController : MonoBehaviour
     {
         crashForce = addForce;
         dirCrashForce = dir;
+        isMoveByForce = true;
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(transform.position, 4);
-        Gizmos.DrawWireCube(collisionPoint.position, boxSize);
+        //Gizmos.DrawWireSphere(transform.position, 4);
+        //Gizmos.DrawWireCube(collisionPoint.position, boxSize);
     }
 }

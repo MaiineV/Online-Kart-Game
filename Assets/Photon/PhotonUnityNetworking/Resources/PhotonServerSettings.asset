@@ -39,6 +39,15 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - AddPlayer
+  - DisconnectOwner
+  - RPC_Jump
+  - RPC_Move
+  - RPC_PlayerDisconnect
+  - RPC_Shoot
+  - SetLocalParms
+  - SetServer
+  - RPC_Gravity
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 0
