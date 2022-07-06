@@ -9,6 +9,9 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
 {
     public Player owner;
 
+    public int laps;
+    public int waypoint;
+
     [SerializeField] float _maxLife;
     float _currentLife;
 
@@ -51,7 +54,7 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
     void Start()
     {
         PlayersVar.instance.AddPlayerGameObject(owner, gameObject);
-        PlayersVar.instance.AddPlayerToLaps(owner);
+        PlayersVar.instance.AddPlayer(owner);
         //CanvasLifeBar lifeBarManager = FindObjectOfType<CanvasLifeBar>();
         //lifeBarManager?.SpawnBar(this);
         Debug.Log("START");

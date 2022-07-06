@@ -39,6 +39,11 @@ namespace Photon.Realtime
     /// </remarks>
     public class Player
     {
+        public int laps = 1;
+        public int waypoint = 0;
+
+        //-----------------------------BORRAR PARA ARRIBA SI NO ANDA!!!!!!!!-------------------------------------------
+
         /// <summary>
         /// Used internally to identify the masterclient of a room.
         /// </summary>
@@ -47,14 +52,13 @@ namespace Photon.Realtime
 
         /// <summary>Backing field for property.</summary>
         private int actorNumber = -1;
-
+                
         /// <summary>Identifier of this player in current room. Also known as: actorNumber or actorNumber. It's -1 outside of rooms.</summary>
         /// <remarks>The ID is assigned per room and only valid in that context. It will change even on leave and re-join. IDs are never re-used per room.</remarks>
         public int ActorNumber
         {
             get { return this.actorNumber; }
         }
-
 
         /// <summary>Only one player is controlled by each client. Others are not local.</summary>
         public readonly bool IsLocal;

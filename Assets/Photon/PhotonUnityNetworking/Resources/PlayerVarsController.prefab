@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _photonView: {fileID: 1893885632214454589}
+  _canvas: {fileID: 0}
 --- !u!114 &1893885632214454589
 MonoBehaviour:
   m_ObjectHideFlags: 0

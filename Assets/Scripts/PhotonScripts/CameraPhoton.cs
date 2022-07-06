@@ -21,7 +21,7 @@ public class CameraPhoton : MonoBehaviour
         _mainCamera.transform.rotation = transform.rotation;
         transform.rotation = Quaternion.Euler(20, 0, 0);
 
-        _followPlayer = PlayersVar.instance.GetGameObject(_owner).transform;
+        _followPlayer = PlayersVar.instance.GetGameObject(_owner)?.transform;
     }
 
     void FixedUpdate()
@@ -30,7 +30,7 @@ public class CameraPhoton : MonoBehaviour
 
         if(_followPlayer == null)
         {
-            _followPlayer = PlayersVar.instance.GetGameObject(_owner).transform;
+            _followPlayer = PlayersVar.instance.GetGameObject(_owner)?.transform;
             return;
         }
 

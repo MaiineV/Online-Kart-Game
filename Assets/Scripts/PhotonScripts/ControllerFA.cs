@@ -7,6 +7,7 @@ using Photon.Realtime;
 public class ControllerFA : MonoBehaviourPun
 {
     public Player localPlayer;
+    string nickName;
 
     float _h;
     float _v;
@@ -14,8 +15,10 @@ public class ControllerFA : MonoBehaviourPun
     void Start()
     {
         DontDestroyOnLoad(gameObject);
-
+        Debug.Log("1");
         localPlayer = PhotonNetwork.LocalPlayer;
+        localPlayer.NickName = nickName;
+        Debug.Log(localPlayer.NickName);
     }
 
 
@@ -33,6 +36,15 @@ public class ControllerFA : MonoBehaviourPun
         {
             MyServer.Instance.RequestJump(localPlayer);
         }
+    }
+
+    public void SetInitial(string nick)
+    {
+        Debug.Log(nick);
+        nickName = nick;
+        Debug.Log("2");
+
+
     }
 
     public Player GetPlayer()

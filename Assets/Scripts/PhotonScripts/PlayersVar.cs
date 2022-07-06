@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using System.Linq;
+using System;
 
 public class PlayersVar : MonoBehaviour
 {
     public static PlayersVar instance;
 
     [SerializeField] PhotonView _photonView;
+    public CanvasController _canvas;
 
     Dictionary<Player, GameObject> _playersGameObjects = new Dictionary<Player, GameObject>();
-    Dictionary<Player, int> _playersLaps = new Dictionary<Player, int>();
-    Dictionary<Player, int> _playersWayPoints = new Dictionary<Player, int>();
+    List<Player> players = new List<Player>();
 
     List<WayPointsController> raceWayPoints = new List<WayPointsController>();
 
@@ -20,6 +22,12 @@ public class PlayersVar : MonoBehaviour
     {
         DontDestroyOnLoad(gameObject);
         instance = this;
+        _canvas = FindObjectOfType<CanvasController>();
+    }
+
+    public void ReciveCanvas(CanvasController canvas)
+    {
+        _canvas = canvas;
     }
 
     public void AddPlayerGameObject(Player actualPlayer, GameObject actualGameObject)
@@ -38,16 +46,12 @@ public class PlayersVar : MonoBehaviour
             return null;
     }
 
-    public void AddPlayerToLaps(Player actualPlayer)
+    public void AddPlayer(Player actualPlayer)
     {
-        if (!_playersLaps.ContainsKey(actualPlayer))
+        if (!players.Contains(actualPlayer))
         {
-            _playersLaps.Add(actualPlayer, 0);
-        }
-
-        if (!_playersWayPoints.ContainsKey(actualPlayer))
-        {
-            _playersWayPoints.Add(actualPlayer, 0);
+            players.Add(actualPlayer);
+            _photonView.RPC("UpdatePositionScore", actualPlayer);
         }
     }
 
@@ -61,31 +65,56 @@ public class PlayersVar : MonoBehaviour
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        _photonView.RPC("ChangeWayPoint", RpcTarget.All, actualPlayer, wayPoint);
+        ChangeWayPoint(actualPlayer, wayPoint);
+    }
+
+    void ChangeWayPoint(Player actualPlayer, int wayPoint)
+    {
+        if (!players.Contains(actualPlayer)) return;
+
+        if (wayPoint != 0 && actualPlayer.waypoint == wayPoint - 1)
+        {
+            actualPlayer.waypoint = wayPoint;
+            _photonView.RPC("UpdatePositionScore", actualPlayer, actualPlayer.waypoint, actualPlayer.laps, actualPlayer.NickName);
+        }
+        else if (wayPoint == 0 && actualPlayer.waypoint == raceWayPoints.Count - 1)
+        {
+            actualPlayer.waypoint = wayPoint;
+            actualPlayer.laps++;
+            _photonView.RPC("ChangePlayerText", actualPlayer, actualPlayer.laps);
+            _photonView.RPC("UpdatePositionScore", actualPlayer);
+
+            if (actualPlayer.laps > 3)
+            {
+                _photonView.RPC("TriggerWinScreen", actualPlayer);
+            }
+        }
     }
 
     [PunRPC]
-    void ChangeWayPoint(Player actualPlayer, int wayPoint)
+    void ChangePlayerText(int laps)
     {
-        Debug.Log("pre if");
-        if (!_playersWayPoints.ContainsKey(actualPlayer) || !_playersLaps.ContainsKey(actualPlayer)) return;
+        _canvas.ChangeLapCounter(laps);
+    }
 
-        if (wayPoint != 0 && _playersWayPoints[actualPlayer] == wayPoint - 1)
-        {
-            _playersWayPoints[actualPlayer] = wayPoint;
-        }
-        else if (wayPoint == 0 && _playersWayPoints[actualPlayer] == raceWayPoints.Count - 1)
-        {
-            _playersWayPoints[actualPlayer] = wayPoint;
-            _playersLaps[actualPlayer]++;
+    [PunRPC]
+    void UpdatePositionScore()
+    {
+        List<Player> tempList = players;
+        tempList.OrderByDescending(x => x.laps).ThenByDescending(x => x.waypoint);
 
-            if (_playersLaps[actualPlayer] >= 3)
-            {
-                //Victory screen
-            }
+        if (!_canvas)
+        {
+            _canvas = FindObjectOfType<CanvasController>();
+            Debug.Log("lo busque");
         }
 
-        Debug.Log(_playersLaps[actualPlayer]);
-        Debug.Log(_playersWayPoints[actualPlayer]);
+        _canvas?.ChangeScoreboard(tempList);
+    }
+
+    [PunRPC]
+    void TriggerWinScreen()
+    {
+        _canvas.WinScreen();
     }
 }

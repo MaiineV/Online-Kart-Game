@@ -14,10 +14,9 @@ public class WayPointsController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         CharacterFA collisionCharacter = other.gameObject.GetComponent<CharacterFA>();
-        Debug.Log("a");
+
         if (collisionCharacter)
         {
-            Debug.Log("b");
             PlayersVar.instance.RequestChangeWayPoint(collisionCharacter.owner, _waypointNumber);
         }
     }

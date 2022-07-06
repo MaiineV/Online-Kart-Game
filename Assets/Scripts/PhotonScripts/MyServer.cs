@@ -8,7 +8,7 @@ public class MyServer : MonoBehaviourPun
 {
     public static MyServer Instance;
 
-    Player _server;
+    public Player _server;
 
     [SerializeField] CharacterFA _characterPrefab;
 
