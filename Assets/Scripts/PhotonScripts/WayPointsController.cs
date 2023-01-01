@@ -9,6 +9,7 @@ public class WayPointsController : MonoBehaviour
     void Start()
     {
         PlayersVar.instance.AddWayPoint(this);
+        GetComponent<Renderer>().enabled = false;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -17,6 +18,7 @@ public class WayPointsController : MonoBehaviour
 
         if (collisionCharacter)
         {
+            collisionCharacter.lastWayPoint = transform;
             PlayersVar.instance.RequestChangeWayPoint(collisionCharacter.owner, _waypointNumber);
         }
     }

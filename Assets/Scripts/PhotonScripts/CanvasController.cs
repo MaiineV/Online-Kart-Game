@@ -7,6 +7,7 @@ using Photon.Realtime;
 public class CanvasController : MonoBehaviour
 {
     [SerializeField] Text _actualLap;
+    [SerializeField] Text _actualPosition;
     [SerializeField] GameObject _tabScreen;
     [SerializeField] GameObject _winScreen;
     [SerializeField] List<Text> _nicksPlayer;
@@ -29,6 +30,11 @@ public class CanvasController : MonoBehaviour
         _actualLap.text = actualLap.ToString() + " / 3";
     }
 
+    public void ChangePositionCounter(int actualPosition, int maxPlayer)
+    {
+        _actualPosition.text = actualPosition.ToString() + " / " + maxPlayer.ToString();
+    }
+
     public void ChangeScoreboard(List<Player> orderNick)
     {
         for (int i = 0; i < orderNick.Count; i++)
@@ -40,6 +46,11 @@ public class CanvasController : MonoBehaviour
     public void WinScreen()
     {
         _winScreen.SetActive(true);
+    }
+
+    public void BTN_Quit()
+    {
+        MyServer.Instance.RequestDisconnection(FindObjectOfType<ControllerFA>().localPlayer);
     }
 
     IEnumerator WaitPhoton()

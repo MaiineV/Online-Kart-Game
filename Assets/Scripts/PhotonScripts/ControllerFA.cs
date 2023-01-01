@@ -15,15 +15,15 @@ public class ControllerFA : MonoBehaviourPun
     void Start()
     {
         DontDestroyOnLoad(gameObject);
-        Debug.Log("1");
         localPlayer = PhotonNetwork.LocalPlayer;
         localPlayer.NickName = nickName;
-        Debug.Log(localPlayer.NickName);
     }
 
 
     void Update()
     {
+        if (!MyServer.Instance.canPlay) return;
+        
         _h = Input.GetAxis("Horizontal");
         _v = Input.GetAxis("Vertical");
 
@@ -35,6 +35,15 @@ public class ControllerFA : MonoBehaviourPun
         if (Input.GetKeyDown(KeyCode.Space))
         {
             MyServer.Instance.RequestJump(localPlayer);
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            MyServer.Instance.RequestTurboOn(localPlayer);
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            MyServer.Instance.RequestTurboOff(localPlayer);
         }
     }
 

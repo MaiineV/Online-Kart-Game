@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _characterPrefab: {fileID: 2103464135258512379, guid: 85a40e49b94bf7e40967be34fde16e8e, type: 3}
+  canPlay: 0
+  myPhotonView: {fileID: -2402453865834730252}
 --- !u!114 &-2402453865834730252
 MonoBehaviour:
   m_ObjectHideFlags: 0

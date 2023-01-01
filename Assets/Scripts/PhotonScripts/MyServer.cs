@@ -16,6 +16,9 @@ public class MyServer : MonoBehaviourPun
 
     public int PackagePerSecond { get; private set; }
 
+    public bool canPlay = false;
+    public PhotonView myPhotonView;
+
     void Start()
     {
         DontDestroyOnLoad(gameObject);
@@ -29,6 +32,20 @@ public class MyServer : MonoBehaviourPun
                 photonView.RPC("SetServer", RpcTarget.AllBuffered, PhotonNetwork.LocalPlayer, 1);
             }
         }
+    }
+
+    private void Update()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        if (PhotonNetwork.PlayerList.Length > 2 && !canPlay)
+            myPhotonView.RPC("StartPlay", RpcTarget.AllBuffered);
+    }
+
+    [PunRPC]
+    void StartPlay()
+    {
+        canPlay = true;
     }
 
     [PunRPC]
@@ -98,6 +115,16 @@ public class MyServer : MonoBehaviourPun
         photonView.RPC("RPC_Jump", _server, player);
     }
 
+    public void RequestTurboOn(Player player)
+    {
+        photonView.RPC("RPC_Turbo", _server, player);
+    }
+
+    public void RequestTurboOff(Player player)
+    {
+        photonView.RPC("RPC_NormalMove", _server, player);
+    }
+
     public void RequestDisconnection(Player player)
     {
         Debug.LogWarning("ENVIO RPC");
@@ -134,6 +161,24 @@ public class MyServer : MonoBehaviourPun
         if (_dictModels.ContainsKey(playerRequested))
         {
             _dictModels[playerRequested].Jump();
+        }
+    }
+
+    [PunRPC]
+    void RPC_Turbo(Player playerRequested)
+    {
+        if (_dictModels.ContainsKey(playerRequested))
+        {
+            _dictModels[playerRequested].TurboOn();
+        }
+    }
+
+    [PunRPC]
+    void RPC_NormalMove(Player playerRequested)
+    {
+        if (_dictModels.ContainsKey(playerRequested))
+        {
+            _dictModels[playerRequested].TurboOff();
         }
     }
 

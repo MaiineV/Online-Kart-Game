@@ -12,14 +12,23 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
     public int laps;
     public int waypoint;
 
+    public Transform lastWayPoint;
+
     [SerializeField] float _maxLife;
     float _currentLife;
+
+    public GameObject myNitro;
+    public PhotonView myPhotonView;
 
     [Header("Variables de Movimiento")]
     public float aceleration;
     public float deaceleration;
     public float maxSpeed;
     public float speed;
+    public float turboSpeed;
+    public float turboDuration;
+    public float maxTurboDuration;
+    public bool isTurbo = false;
     public float maxRotationAngle;
     public float rotationAngle;
 
@@ -55,8 +64,6 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
     {
         PlayersVar.instance.AddPlayerGameObject(owner, gameObject);
         PlayersVar.instance.AddPlayer(owner);
-        //CanvasLifeBar lifeBarManager = FindObjectOfType<CanvasLifeBar>();
-        //lifeBarManager?.SpawnBar(this);
         Debug.Log("START");
     }
 
@@ -65,6 +72,7 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
         if (!PhotonNetwork.IsMasterClient) return;
 
         Gravity();
+        ConsumeOfNitro();
     }
 
 
@@ -146,7 +154,10 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
                 speed = 0;
         }
 
-        speed = Mathf.Clamp(speed, -maxSpeed, maxSpeed);
+        if (!isTurbo)
+            speed = Mathf.Clamp(speed, -maxSpeed, maxSpeed);
+        else
+            speed = Mathf.Clamp(speed, -maxSpeed, maxSpeed + turboSpeed);
 
 
 
@@ -166,21 +177,44 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
         transform.position += rotationPoint.forward * speed * Time.deltaTime;
     }
 
-    /*public void Shoot()
-    {
-        PhotonNetwork.Instantiate(_bulletPrefab.name, _bulletSpawnPosition.position, transform.rotation)
-                     .GetComponent<NormalBullet>()
-                     .SetOwner(this)
-                     .SetDmg(_dmg)
-                     .SetColor(GetComponent<Renderer>().material.color, _owner);
-    }*/
-
     public void Jump()
     {
         if (!isOnAir)
         {
             verticalForce += forceJump;
         }
+    }
+
+    public void TurboOn()
+    {
+        if (!isTurbo)
+        {
+            speed += turboSpeed;
+            isTurbo = true;
+            myPhotonView.RPC("ActivateVisualNitro", RpcTarget.All);
+        }
+    }
+
+    public void TurboOff()
+    {
+        if (isTurbo)
+        {
+            speed -= turboSpeed;
+            isTurbo = false;
+            myPhotonView.RPC("DeactivateVisualNitro", RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    void ActivateVisualNitro()
+    {
+        myNitro.gameObject.SetActive(true);
+    }
+
+    [PunRPC]
+    void DeactivateVisualNitro()
+    {
+        myNitro.gameObject.SetActive(false);
     }
 
     public void Gravity()
@@ -210,6 +244,24 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
         transform.position += Vector3.up * verticalForce * Time.deltaTime;
     }
 
+    public void ConsumeOfNitro()
+    {
+        if (isTurbo)
+        {
+            turboDuration -= Time.deltaTime;
+
+            if(turboDuration <= 0)
+            {
+                TurboOff();
+            }
+        }
+        else
+        {
+            turboDuration += Time.deltaTime;
+        }
+        turboDuration = Mathf.Clamp(turboDuration, 0, maxTurboDuration);
+    }
+
     private void OnApplicationQuit()
     {
         if (owner == PhotonNetwork.LocalPlayer)
@@ -235,7 +287,7 @@ public class CharacterFA : MonoBehaviourPunCallbacks, IPunObservable
         {
             _currentLife = (float)stream.ReceiveNext();
             _maxLife = (float)stream.ReceiveNext();
-            onLifeBarUpdate(_currentLife/_maxLife);
+            onLifeBarUpdate(_currentLife / _maxLife);
         }
     }
 }

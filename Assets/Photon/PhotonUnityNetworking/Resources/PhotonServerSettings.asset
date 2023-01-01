@@ -52,6 +52,13 @@ MonoBehaviour:
   - ChangePlayerText
   - UpdatePositionScore
   - TriggerWinScreen
+  - AddPlayerToAll
+  - UpdatePosition
+  - RPC_NormalMove
+  - RPC_Turbo
+  - ActivateVisualNitro
+  - DeactivateVisualNitro
+  - StartPlay
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
